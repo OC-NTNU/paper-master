@@ -1,11 +1,41 @@
 \section{Introduction}
 
-\todo[inline]{deep introduction}
+\todo[inline]{introduction, domain, long term goal, context of paper, corpus}
 
-\todo[inline]{the task at hand - annotation scheme}
+\subsection{Extraction task}
 
-\todo[inline]{the approaches}
+\todo[inline]{We are extracting on a graph based fashion, in order to build structures}
 
-a bottom-up approach, in which entities are first extracted, and subsequently used as evidence during extraction of events
+\todo{How is the level of detail here regarding the annotation scheme?}
 
-a top-down approach, where events are extracted first, and entities follow subsequently. 
+Of interest in the domain is the extraction of changes to quantitative variables, such as \emph{increase in atmospheric CO$_2$}, and interactions between such changes, which can be either causal or correlative relations. Table \ref{ann_scheme} presents the trigger categories that were used to annotate text spans of interest in the corpus.
+
+\begin{figure}
+\Tree[.CATEGORY [.ENTITY \textit{Variable} \textit{Thing} ]
+          [.EVENT [.\textit{Change} \textit{Increase} \textit{Decrease} ] 
+         		  [.INTERACTION \textit{Cause} \textit{Correlate} ] 
+          ] 
+     ]
+\caption{Type Hierarchy for the Annotation Scheme}
+\label{ann_scheme}
+\end{figure}
+
+\emph{Variable} in our annotation scheme is defined as a \emph{quantitative variable}, meaning an entity than can be measured and assigned some value along some ordered axis, either as a numerical value or a value from a totally ordered set of discrete states. This includes among other counts, frequencies and ratios. Text spans that can be interpreted as quantitative variables out of context are abundant in the scientific literature, but only a small subset of these are of interest. Only variables that occur in an event are therefore annotated in the corpus. 
+
+\emph{Thing} is used to annotate any span of text that functions as the argument of a change event, while not fulfilling the requirements to be annotated as a variable. 
+
+A change event describes a directional, quantitative change in the value of a quantitative variable. \emph{Increase} is used to annotate a change in the positive direction, \emph{decrease} annotates changes in the negative direction and \emph{change} is used when the direction is underspecified in the text. All the change events take an entity as the \emph{theme} argument, signalling the variable that undergoes the change.
+
+Interaction categories mark text spans that explicitly signal interactions between two change events. The types of interactions that are used in the corpus are \emph{cause} and \emph{correlate}. Cause events take two arguments: An \emph{agent}, which marks the change event that causes the other change event to come about. The \emph{theme} argument is used for the caused change event. Correlation events also take two arguments, the \emph{theme} and \emph{co-theme}. It was noticed during corpus annotation that there is a tendency in natural language to focus on one of the changes as initiating the other, giving such correlations a directional interpretation. For correlations with an directional interpretation, the initiating event is marked as the theme, and the other event is marked as the co-theme. If the correlation has no directional interpretation, the event that is the syntactic object of the correlation trigger is marked as co-theme, and the other event as theme by default.
+
+Three additional categories are used in the corpus to handle some common language constructs, namely conjunction, disjunction and referring expressions. The categories \emph{and} and \emph{or} handle conjunctions and disjunctions, respectively, and each take two \emph{part} arguments. Referring expressions are handled by the \emph{RefExp} categories, which takes the antecedent as the \emph{coref} argument.
+
+For a more detailed introduction to the annotation scheme used in the corpus, see \citet{mar14}.
+
+\subsection{Event extraction approaches}
+
+Event extraction is traditionally conducted with a bottom-up approach, in which entities are first extracted, and subsequently used as evidence during a second step in which events are extracted. However, it is also possible to conceive a top-down approach, where events are extracted first, and the second step extracts entities. 
+
+The bottom-up approach is likely common in information extraction because in most extraction tasks, entity extraction is a separate, well-defined task that is often considered easier than event extraction. However, in the extraction task adapted here, it is impossible to clearly separate entity and event extraction, as text spans are only considered entities if they occur as the argument of an event.
+
+It is therefore of interest to see whether the top-down approach is better suited for the task at hand than the bottom-up approach.

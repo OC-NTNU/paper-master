@@ -83,3 +83,46 @@ Table \ref{tees_trigger_conf} displays gold standard versus predicted category f
 \caption{Confusion matrix for argument categories, top-down system.}
 \label{pms_argument_conf}
 \end{table}
+
+Precision, recall and f-score for each category for both systems is presented in tables \ref{trigger_ev} and \ref{argument_ev}. 
+
+\begin{table}
+\begin{center}
+\begin{tabular}{ | l | l | l | l | l | l | l | }
+	\hline
+	\cellcolor{gray} & \multicolumn{3}{c}{BOTTOM-UP} & \multicolumn{3}{c|}{TOP-DOWN} \\ \hline
+	\cellcolor{gray} & Precision & Recall & F-score & Precision & Recall & F-Score \\ \hline
+	Variable & 0.41 & 0.40 & 0.40 & 0.71 & 0.51 & 0.59 \\
+	Thing & 0.33 & 0.14 & 0.20 & 0.5 & 0.22 & 0.31 \\
+	Increase & 0.74 & 0.46 & 0.57 & 0.97 & 0.78 & 0.86 \\
+	Decrease & 0.76 & 0.39 & 0.52 & 0.88 & 0.71 & 0.79 \\ 
+	Change & 0.47 & 0.16 & 0.24 & 0.72 & 0.64 & 0.68 \\ 
+	Cause & 0.11 & 0.01 & 0.02 & 0.72 & 0.33 & 0.45 \\ 
+	Correlate & 0.68 & 0.13 & 0.22 & 1.00 & 0.01 & 0.02 \\ 
+	And & 0.50 & 0.03 & 0.06 & 0.00 & 0.00 & 0.00 \\
+	Or & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 \\ \hline
+	Macro & 0.44 & 0.25 & 0.32 & 0.61 & 0.35 & 0.44 \\
+	Micro & 0.50 & 0.32 & 0.39 & 0.77 & 0.48 & 0.60 \\ \hline
+\end{tabular}
+\end{center}
+\caption{Evaluation metrics, trigger categories.}
+\label{trigger_ev}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{ | l | l | l | l | l | l | l | }	
+	\hline
+	\cellcolor{gray} & \multicolumn{3}{c}{BOTTOM-UP} & \multicolumn{3}{c|}{TOP-DOWN} \\ \hline
+	\cellcolor{gray} & Precision & Recall & F-score & Precision & Recall & F-Score \\ \hline
+	Agent & 0.26 & 0.02 & 0.04 & 0.22 & 0.06 & 0.09 \\
+	Theme & 0.39 & 0.19 & 0.23 & 0.43 & 0.32 & 0.37 \\
+	Co-theme & 0.32 & 0.06 & 0.10 & 0.00 & 0.00 & 0.00 \\
+	Part & 0.80 & 0.02 & 0.04 & 0.00 & 0.00 & 0.00  \\ \hline
+	Macro & 0.44 & 0.04 & 0.07 & 0.16 & 0.10 & 0.12 \\ 
+	Micro & 0.43 & 0.13 & 0.20 & 0.31 & 0.22 & 0.26 \\ \hline
+\end{tabular}
+\end{center}
+\caption{Evaluation metrics, argument categories.}
+\label{argument_ev}
+\end{table}
