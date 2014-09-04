@@ -1,3 +1,17 @@
 \section{Discussion}
 
-\todo[inline]{}
+It should be kept in mind that particularly the results produced by the top-down system provide a low estimate of the performance of a complete information extraction system on the task, as the pattern matching system used to provide the benchmark estimates is extremely primitive, and has a large potential for improvement. The bottom-up system used for the evaluation, TEES, has reached a mature step of development, and the results produced are therefore likely close to expected actual performance. However, the system has been developed for a different domain, and it is therefore likely that performance can be improved somewhat with a domain-tailored bottom-up system.
+
+\todo[inline]{Maybe say something about data limitations and reliability of ML on the corpus?}
+
+It can be seen from table \ref{trigger_ev} that the top-down system outperforms bottom-up on the entity categories (Variable, Thing). As the bottom-up system starts with entity extraction, one would expect it to perform well on these categories, whereas in the top-down system, which treats entity extraction as a secondary task, one would expect errors from the event extraction step propagate to create problems for entity extraction. The results for these categories are therefore different for what would be expected, giving evidence that the extraction task at hand does not lend itself easily to the bottom-up approach. 
+
+The top-down system outperformed the bottom-up system on all change event categories (Increase, Decrease and Change). For both systems, performance was higher on change event categories than on entity categories, or in fact, on any other trigger category group. This indicates that the change event categories are easier to extract than the other categories. 
+
+\todo[inline]{interaction}
+
+\todo[inline]{and/or}
+
+\todo[inline]{arguments}
+
+...it is likely that much of the success of the top-down system is due to the fact that it started extraction from change events, which were shown to be the easiest categories, and used evidence found during this step to facilitate extraction of the more difficult categories. This can be contrasted with the bottom-up system, which started from the quite difficult entity categories, and the rather unreliable conclusions made during that step could not improve performance on the already easy change events categories. A general lesson that can be drawn from this, is to always start extraction from the easiest category types.
