@@ -6,8 +6,6 @@ To act as a benchmark bottom-up system, the Turku Event Extraction System (TEES)
 
 \todo[inline]{What should I write more on TEES?}
 
-\todo{The one word issue?}
-
 In order to benchmark the top-down approach, an information extraction system had to be developed that followed this approach. Inspection of the data revealed that trigger words for events were relatively unambiguous. It was therefore concluded that a deterministic pattern matching system would be sufficient to provide an estimate for the performance of the top-down approach on the task at hand.
 
 In the system, a pattern is defined as a partial dependency graph that signals the presence of an event. During information extraction, the system parses the text with the Stanford parser\citep{kle03}, and an event is detected for every pattern that matches the dependency parse tree of the sentence. In case of a match, each pattern specifies which node(s) in the dependency tree should be labelled as the event trigger, and which parts of the dependency tree that should be labelled as the arguments. 
@@ -18,4 +16,4 @@ A set of patterns was manually developed from eight of the papers in the corpus,
 
 TEES was evaluated by five-fold cross-validation, each fold consisting of two papers. As eight papers had been used during development of the pattern matching system, the pattern matching system was evaluated once only, using the two remaining papers as test data.
 
-\todo[inline]{How are matches counted in the evaluation procedure?}
+In the evaluation, an element is matched to an element in the gold standard if the text spans exhibit any degree of overlap, thus abstracting away from exact scoping of text spans. A predicted trigger was counted as a true positive if it matched an element of the same annotation category in the gold standard, and a false positive if it didn't. A trigger in the gold standard was counted as a false negative if it could not be matched to a predicted trigger of the same category. 

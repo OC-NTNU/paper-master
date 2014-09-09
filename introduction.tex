@@ -1,14 +1,20 @@
 \section{Introduction}
 
-\todo[inline]{introduction, domain, long term goal, context of paper, corpus}
+Information extraction is the task of extracting structured information from natural language text. Historically, information extraction research focused on named entity recognition (NER), with research effort slowly turning to more complex tasks such as relation or event extraction when state-of-the-art on NER had reached acceptable levels. 
+
+When developing information extraction systems for a new domain, the development effort normally adheres to an incremental approach similar to historical development of the information extraction field, starting with named entity recognition, and subsequently working on relation or event extraction. The architecture of most state-of-the-art information extraction systems reflect this development pattern, as they are pipeline systems with first a NER component, followed by a relation/event extraction component, where the output of the first component is provided as input to the second component.
+
+The drawback of a pipeline architecture is that each component must make a hard choice that cannot be undone by downstream components, even though new information may surface later in the extraction process. Some recent research effort has therefore focused on joint extraction architectures, where are steps are conducted in parallel.\todo{citations?} However, joint extraction architectures have not reached the level of maturity required for state-of-the-art performance, and have other drawbacks, such as the increased complexity of learning a joint probability distribution, that make them infeasible for certain circumstances\todo{Am I just making this stuff up, or is it true?}, such as when training data is scarce.
+
+The traditional pipeline architecture for information extraction appears to have arisen not as a principled design decision, but rather accidentally by following the research effort. This paper therefore investigates another approach to the pipeline architecture, where events detection precedes entity detection, and shows that for certain domains, reversing the order of the pipeline can prove beneficial.  
 
 \subsection{Extraction task}
 
-\todo[inline]{We are extracting on a graph based fashion, in order to build structures}
+Progress in research towards understanding the full range of causes and consequences of global warming is hampered by the wide range of relevant disciplines, which include, among others, climate science, earth science, oceanography, ecology and biochemistry. Text mining can be used to provide an overview of the research in the relevant disciplines, and help the researchers draw parallels or uncover hidden connections. As a first step towards a discovery support system in climate change science, an information extraction system is being developed.
 
-\todo{How is the level of detail here regarding the annotation scheme?}
+To extract relations that are general enough to be useful across disciplines, but still specific enough to be useful for a researcher, the information extraction system targets the extraction of events where quantiative variables undergo a directional change, such as \emph{increase in atmospheric CO$_2$}, and interactions between such change events, which are restricted to causal and correlative relations. A pilot corpus consisting of 10 scientific journal articles has been annotated, as described in \citet{mar14}. The remainder of this section provides a sufficient introduction to the annotation scheme as to understand the specifics of the experiment.
 
-Of interest in the domain is the extraction of changes to quantitative variables, such as \emph{increase in atmospheric CO$_2$}, and interactions between such changes, which can be either causal or correlative relations. Table \ref{ann_scheme} presents the trigger categories that were used to annotate text spans of interest in the corpus.
+The trigger categories that were used to annotate text spans of interest in the corpus are presented in Table \ref{ann_scheme}.
 
 \begin{figure}
 \Tree[.CATEGORY [.ENTITY \textit{Variable} \textit{Thing} ]
@@ -30,12 +36,8 @@ Interaction categories mark text spans that explicitly signal interactions betwe
 
 Three additional categories are used in the corpus to handle some common language constructs, namely conjunction, disjunction and referring expressions. The categories \emph{and} and \emph{or} handle conjunctions and disjunctions, respectively, and each take two \emph{part} arguments. Referring expressions are handled by the \emph{RefExp} categories, which takes the antecedent as the \emph{coref} argument.
 
-For a more detailed introduction to the annotation scheme used in the corpus, see \citet{mar14}.
+\subsection{Pipeline Architecture}
 
-\subsection{Event extraction approaches}
+The canonical information extraction pipeline architecture uses a bottom-up approach, in which the lowest order categories (entities) are extracted first, and subsequently used as evidence during later steps when higher order categories (events) are extracted. However, it is also possible to conceive a top-down approach, where higher order categories are extracted first, and the lower level entities are extracted later. 
 
-Event extraction is traditionally conducted with a bottom-up approach, in which entities are first extracted, and subsequently used as evidence during a second step in which events are extracted. However, it is also possible to conceive a top-down approach, where events are extracted first, and the second step extracts entities. 
-
-The bottom-up approach is likely common in information extraction because in most extraction tasks, entity extraction is a separate, well-defined task that is often considered easier than event extraction. However, in the extraction task adapted here, it is impossible to clearly separate entity and event extraction, as text spans are only considered entities if they occur as the argument of an event.
-
-It is therefore of interest to see whether the top-down approach is better suited for the task at hand than the bottom-up approach.
+It was mentioned in the introduction that the bottom-up pipeline approach did not arise as a consequence of an informed design decision, but rather occurred accidentally due to the way research had been conducted. One hypothesis is that the bottom-up approach is successful in many domains because entity extraction is, in many domains, a simpler task than event extraction. Starting extraction from the simplest categories makes sense, as the performance on these categories is likely to be high, and the system therefore able to produce trustworthy information that can be used as supporting evidence during extraction of more difficult categories. A bolder hypothesis is that a pipeline approach will yield the best results if starting extraction from the simplest category group.
