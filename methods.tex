@@ -10,9 +10,9 @@ In order to benchmark the top-down approach, an information extraction system ha
 
 In the system, a pattern is defined as a partial dependency graph that signals the presence of an event. During information extraction, the system parses the text with the Stanford parser\citep{kle03}, and an event is detected for every pattern that matches the dependency parse tree of the sentence. In case of a match, each pattern specifies which node(s) in the dependency tree should be labelled as the event trigger, and which parts of the dependency tree that should be labelled as the arguments. 
 
-A set of patterns was manually developed from eight of the papers in the corpus, with the remaining two held out as test data. For every annotated event in the corpus, a pattern was written that would extract that event. To improve performance, each pattern was manually evaluated against the eight papers, and patterns that yielded a high ratio of false positives on the development data were excluded.
+A set of patterns was manually developed from eight of the papers in the corpus, with the remaining two held out as test data. For every annotated event in the corpus, a pattern was written that would extract that event. To improve performance, each pattern was manually evaluated against the eight development papers, and patterns that yielded a high ratio of false positives on the development data were excluded.
 
-\todo[inline]{I am unsure how much detail is interesting about the PMS, and how to make it appear like we did not only do this because we were lazy.}
+\todo[inline]{Is more information on the PMS required?.}
 
 TEES was evaluated by five-fold cross-validation, each fold consisting of two papers. As eight papers had been used during development of the pattern matching system, the pattern matching system was evaluated once only, using the two remaining papers as test data.
 
