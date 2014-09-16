@@ -2,17 +2,59 @@
 
 An evaluation was conducted to compare the performance of the two information extraction approaches on the specified task. Statistical information extraction systems traditionally follow the bottom-up approach, and an existing information exaction system was therefore selected to provide the benchmark for the bottom-up approach. On the other hand, the top-down approach is rarely taken in the literature. It was therefore necessary to develop a prototype top-down information extraction system for the sake of comparison.
 
+\subsection{Bottom-up system: TEES}
+
 To act as a benchmark bottom-up system, the Turku Event Extraction System (TEES) \citep{bjö11ddi} was selected. TEES was selected for the evaluation because it is has shown state-of-the-art performance over several years of development, can extract events with arbitrary structures, can be trained with custom data sets and the source code is publicly available\footnote{\url{https://github.com/jbjorne/TEES}}. TEES has been developed for BioNLP, and has attained high scores on a number of shared tasks, including BioNLP 2009 (1st place) \citep{bjö09}, BioNLP 2011 (1st place in 4/8 tasks) \citep{bjö11} and Drug-Drug Interactions 2011 Challenge (4th place) \citep{bjö11ddi}.
 
-\todo[inline]{What should I write more on TEES?}
+The TEES pipeline consists of the following steps: Preprocessing, Named Entity Recognition, Trigger Detection, Edge Detection and Unmerging. 
+
+Preprocessing consists of sentence splitting, constituency parsing and conversion to Stanford dependency representation. Sentence splitting is normally conducted using the GENIA sentence splitter\footnote{\url{http://www.nactem.ac.uk/y-matsu/geniass/}}, and parsing normally using the BLLIP-parser \citep{cha05} with the McClosky model for biomedical text \citep{mcc08}. Conversion to dependency format is normally performed by the Stanford dependency converter \citep{dem08}. Because the textual materials in the experiment conducted here were not of the biomedical domain, the Stanford parser \citep{kle03} was used instead for preprocessing.
+
+The Named Entity Recognition, Trigger Detection, Edge Detection and Unmerging components are all machine learning-based multi-class classification components that use the $SVM^{MULTICLASS}$ implementation of SVM for classification.
+
+TEES has participated mostly in event extraction-focused shared tasks, in which named entities were given as input to the system, so the Named Entity Component is normally not used, but can be included into the pipeline if required by the task, which is the case in the experiment presented here. The Named Entity Component makes a linear pass over all the tokens in the sentence, classifying every token as belonging to either one of the entity categories or as not an entity. Normally each single token is counted as an independent entity, but if two or more subsequent tokens are classified as belonging to the same class, they are merged to form a multi-token entity if a multi-token entity with the exact same text string can be found in the training data.
+
+Trigger Detection makes another linear pass over the tokens in the sentence, detecting event trigger words. Every token is either classified as belonging to one of the event categories, or as not an event trigger. In the same way as with NER, multiple subsequent tokens can be merged to a single trigger if given the same class, and a trigger with the exact same text string can be found in the training data.
+
+Edge Detection detects arguments of the triggered events. Every event is paired with every other event and entity, and the classifier determines which argument relation type holds between the pair, if any. Because this scheme lets events take not only entities, but also events as argument, this can create events with any structure desired.
+
+In case of overlapping events, i.e. events that share some trigger, some cleaning up is required to separate the events. This is performed by the Unmerging step, which uses a classifier to determine whether an argument branch should be unmerged into a separate event. 
+
+\subsection{Top-down system: Pattern matching}
 
 In order to benchmark the top-down approach, an information extraction system had to be developed that followed this approach. Inspection of the data revealed that trigger words for events were relatively unambiguous. It was therefore concluded that a deterministic pattern matching system would be sufficient to provide an estimate for the performance of the top-down approach on the task at hand.
 
-In the system, a pattern is defined as a partial dependency graph that signals the presence of an event. During information extraction, the system parses the text with the Stanford parser\citep{kle03}, and an event is detected for every pattern that matches the dependency parse tree of the sentence. In case of a match, each pattern specifies which node(s) in the dependency tree should be labelled as the event trigger, and which parts of the dependency tree that should be labelled as the arguments. 
+In the system, a pattern is defined as a partial dependency graph that signals the presence of an event. During information extraction, the system parses the text with the Stanford parser \citep{kle03}, and an event is detected for every pattern that matches the dependency parse tree of the sentence. In case of a match, each pattern specifies which node(s) in the dependency tree should be labelled as the event trigger, and which parts of the dependency tree that should be labelled as the arguments. 
 
 A set of patterns was manually developed from eight of the papers in the corpus, with the remaining two held out as test data. For every annotated event in the corpus, a pattern was written that would extract that event. To improve performance, each pattern was manually evaluated against the eight development papers, and patterns that yielded a high ratio of false positives on the development data were excluded.
 
-\todo[inline]{Is more information on the PMS required?.}
+As an illustrative example, Figure \ref{dep_pattern} presents how the pattern \emph{T prep "in" pobj S} with $T=increase$ is matched against the sentences "This reveals a significant increase in jelly depositions." The successful match produces the annotation "This reveals a significant [increase$_{increase}$] in [jelly depositions$_{variable}$]."
+
+\begin{figure}
+\begin{center}
+\begin{dependency}[theme = simple]
+	\begin{deptext}
+	This \& reveals \& a \& significant \& \textcolor{blue}{increase} \& \textcolor{red}{in} \& \textcolor{brown}{jelly} \& \textcolor{brown}{depositions} \& . \\
+	\end{deptext}
+	\depedge{2}{1}{NSUBJ}
+	\depedge[arc angle=60]{5}{3}{DET}
+	\depedge[arc angle=25]{5}{4}{AMOD}
+	\depedge{2}{5}{DOBJ}
+	\depedge[edge style=red]{5}{6}{PREP}
+	\depedge[arc angle=25, edge style=brown]{8}{7}{NN}
+	\depedge[edge style=red]{6}{8}{POBJ}
+\end{dependency}
+\end{center}
+\caption{Matching against the dependency parse tree.}
+\label{dep_pattern}
+\end{figure}
+
+\subsection{Why do we do it this way?}
+
+\todo[inline]{I need some help regarding where to place this stuff and what to write}
+
+
+\subsection{Evaluation methods}
 
 TEES was evaluated by five-fold cross-validation, each fold consisting of two papers. As eight papers had been used during development of the pattern matching system, the pattern matching system was evaluated once only, using the two remaining papers as test data.
 
