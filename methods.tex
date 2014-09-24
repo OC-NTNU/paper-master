@@ -4,7 +4,7 @@ An evaluation was conducted to compare the performance of the two information ex
 
 \subsection{Bottom-up system: TEES}
 
-To act as a benchmark bottom-up system, the Turku Event Extraction System (TEES) \citep{bjö11ddi} was selected. TEES was selected for the evaluation because it is has shown state-of-the-art performance over several years of development, can extract events with arbitrary structures, can be trained with custom data sets and the source code is publicly available\footnote{\url{https://github.com/jbjorne/TEES}}. TEES has been developed for BioNLP, and has attained high scores on a number of shared tasks, including BioNLP 2009 (1st place) \citep{bjö09}, BioNLP 2011 (1st place in 4/8 tasks) \citep{bjö11} and Drug-Drug Interactions 2011 Challenge (4th place) \citep{bjö11ddi}.
+To act as a benchmark bottom-up system, the Turku Event Extraction System (TEES) \citep{bjo11ddi} was selected. TEES was selected for the evaluation because it is has shown state-of-the-art performance over several years of development, can extract events with arbitrary structures, can be trained with custom data sets and the source code is publicly available\footnote{\url{https://github.com/jbjorne/TEES}}. TEES has been developed for BioNLP, and has attained high scores on a number of shared tasks, including BioNLP 2009 (1st place) \citep{bjo09}, BioNLP 2011 (1st place in 4/8 tasks) \citep{bjo11} and Drug-Drug Interactions 2011 Challenge (4th place)\citep{bjo11ddi}.
 
 The TEES pipeline consists of the following steps: Preprocessing, Named Entity Recognition, Trigger Detection, Edge Detection and Unmerging. 
 
@@ -24,35 +24,128 @@ In case of overlapping events, i.e. events that share some trigger, some cleanin
 
 In order to benchmark the top-down approach, an information extraction system had to be developed that followed this approach. Inspection of the data revealed that trigger words for events were relatively unambiguous. It was therefore concluded that a deterministic pattern matching system would be sufficient to provide an estimate for the performance of the top-down approach on the task at hand.
 
-In the system, a pattern is defined as a partial dependency graph that signals the presence of an event. During information extraction, the system parses the text with the Stanford parser \citep{kle03}, and an event is detected for every pattern that matches the dependency parse tree of the sentence. In case of a match, each pattern specifies which node(s) in the dependency tree should be labelled as the event trigger, and which parts of the dependency tree that should be labelled as the arguments. 
+The prototype system uses a two-step pipeline. The first step detects change event triggers and entity arguments. The second step tries to detect interaction events in sentences where are multiple change events. In addition, a preprocessing step handles sentence splitting, lemmaization and parsing. The same preprocessing machinery is used for both systems in the experiment.
 
-A set of patterns was manually developed from eight of the papers in the corpus, with the remaining two held out as test data. For every annotated event in the corpus, a pattern was written that would extract that event. To improve performance, each pattern was manually evaluated against the eight development papers, and patterns that yielded a high ratio of false positives on the development data were excluded.
+Figure \ref{pattern_exmpl} gives two example of patterns used in the first step. Each pattern consists of a trigger lemma, an event type and an argument type with a dependency path. The extraction process is illustrated in Figure \ref{dep_pattern}. During extraction, the system first tries to match the trigger lemma against the lemmas used in the sentence. Trigger lemma matches for the two patterns provided in Figure \ref{pattern_exmpl} are shown in blue. For each trigger lemma match, the system then tries to match the argument dependency path of the pattern to the dependency representation of the sentence. In the argument dependency path, the letter T represent the node of the trigger word, and the letter S, which will be explained shortly, can match any node. The matching paths are coloured in red in the example. 
 
-As an illustrative example, Figure \ref{dep_pattern} presents how the pattern \emph{T prep "in" pobj S} with $T=increase$ is matched against the sentences "This reveals a significant increase in jelly depositions." The successful match produces the annotation "This reveals a significant [increase$_{increase}$] in [jelly depositions$_{variable}$]."
+After matching the pattern, the trigger node becomes annotated as a change event of the type specified in the pattern. The subtree rooted at the node labelled as S will become the theme argument of the change event. As shown in the example, sometimes the trigger node lies in the subtree of the S node, in which case that branch is pruned away, extracting "\emph{concentrations of CO2}" rather than "\emph{Increasing concentrations of CO2}" as the argument. The argument becomes annotated as an entity with the entity category specified in the pattern, which can be either VAR (variable) or THN (thing). 
+
+\begin{figure}
+\begin{center}
+\begin{tabular}{  l  l  }
+TRIGGER "increase"	& TRIGGER "decline" \\
+TYPE increase & TYPE decrease \\
+VAR S amod T & VAR T prep "in" pobj S \\
+\end{tabular}
+\end{center}
+\caption{Example of two patterns for change events}
+\label{pattern_exmpl}
+\end{figure}
 
 \begin{figure}
 \begin{center}
 \begin{dependency}[theme = simple]
 	\begin{deptext}
-	This \& reveals \& a \& significant \& \textcolor{blue}{increase} \& \textcolor{red}{in} \& \textcolor{brown}{jelly} \& \textcolor{brown}{depositions} \& . \\
+	Increasing \& concentrations \& of \& CO2 \& cause \& a \& strong \& decline \& in \& growth \& . \\
 	\end{deptext}
-	\depedge{2}{1}{NSUBJ}
-	\depedge[arc angle=60]{5}{3}{DET}
-	\depedge[arc angle=25]{5}{4}{AMOD}
-	\depedge{2}{5}{DOBJ}
-	\depedge[edge style=red]{5}{6}{PREP}
-	\depedge[arc angle=25, edge style=brown]{8}{7}{NN}
-	\depedge[edge style=red]{6}{8}{POBJ}
+	\depedge{2}{1}{AMOD}
+	\depedge{2}{3}{PREP}
+	\depedge{3}{4}{POBJ}
+	\depedge{5}{2}{NSUBJ}
+	\depedge{5}{8}{DOBJ}
+	\depedge[arc angle=55]{8}{6}{DET}
+	\depedge[arc angle=15]{8}{7}{AMOD}
+	\depedge{8}{9}{PREP}
+	\depedge{9}{10}{POBJ}
 \end{dependency}
+
+\begin{dependency}[theme = simple]
+	\begin{deptext}
+	\textcolor{blue}{Increasing} \& concentrations \& of \& CO2 \& cause \& a \& strong \& \textcolor{blue}{decline} \& in \& growth \& . \\
+	\end{deptext}
+	\depedge{2}{1}{AMOD}
+	\depedge{2}{3}{PREP}
+	\depedge{3}{4}{POBJ}
+	\depedge{5}{2}{NSUBJ}
+	\depedge{5}{8}{DOBJ}
+	\depedge[arc angle=55]{8}{6}{DET}
+	\depedge[arc angle=15]{8}{7}{AMOD}
+	\depedge{8}{9}{PREP}
+	\depedge{9}{10}{POBJ}
+\end{dependency}
+
+\begin{dependency}[theme = simple]
+	\begin{deptext}
+	\textcolor{blue}{Increasing} \& \textcolor{red}{concentrations} \& of \& CO2 \& cause \& a \& strong \& \textcolor{blue}{decline} \& \textcolor{red}{in} \& \textcolor{red}{growth} \& . \\
+	\end{deptext}
+	\depedge[edge style=red]{2}{1}{AMOD}
+	\depedge{2}{3}{PREP}
+	\depedge{3}{4}{POBJ}
+	\depedge{5}{2}{NSUBJ}
+	\depedge{5}{8}{DOBJ}
+	\depedge[arc angle=55]{8}{6}{DET}
+	\depedge[arc angle=15]{8}{7}{AMOD}
+	\depedge[edge style=red]{8}{9}{PREP}
+	\depedge[edge style=red]{9}{10}{POBJ}
+\end{dependency}
+
+\begin{dependency}[theme = simple]
+	\begin{deptext}
+	\textcolor{blue}{Increasing} \& \textcolor{brown}{concentrations} \& \textcolor{brown}{of} \& \textcolor{brown}{CO2} \& cause \& a \& strong \& \textcolor{blue}{decline} \& \textcolor{red}{in} \& \textcolor{brown}{growth} \& . \\
+	\end{deptext}
+	\depedge[edge style=red]{2}{1}{AMOD}
+	\depedge[edge style=brown]{2}{3}{PREP}
+	\depedge[edge style=brown]{3}{4}{POBJ}
+	\depedge{5}{2}{NSUBJ}
+	\depedge{5}{8}{DOBJ}
+	\depedge[arc angle=55]{8}{6}{DET}
+	\depedge[arc angle=15]{8}{7}{AMOD}
+	\depedge[edge style=red]{8}{9}{PREP}
+	\depedge[edge style=red]{9}{10}{POBJ}
+\end{dependency}
+
 \end{center}
-\caption{Matching against the dependency parse tree.}
+\caption{Example of matching process for change events}
 \label{dep_pattern}
 \end{figure}
 
-\subsection{Why do we do it this way?}
+For the second step, where interaction events are extracted, simpler patterns are used, as shown in Figure \ref{iep_exmpl}. In addition to the type parameter, \emph{cause} patterns have an \emph{agent} parameter, which specifies which of the two change events gets marked as the agent in case of a match. Finally, all interaction event patterns have a list of sub-patterns. Each sub-pattern consists of a location and a string. During matching, only sentences with multiple extracted change events are considered. For every pair of adjacent change events, the sentence is divided into three parts: The words before the first change event (BEFORE), the words between the change events (BETWEEN) and the words after the second change event (AFTER). This is illustrated in Figure \ref{iep_split}. If the strings of all the sub-patterns match in the current location, then an interaction event of the corresponding type is annotated at the text span matched by the first sub-pattern. 
 
-\todo[inline]{I need some help regarding where to place this stuff and what to write}
+As the observant reader may notice, correlations do not have any parameter that specifies which argument event takes which argument role. This is because it was observed that the pattern itself is not sufficient to determine which argument takes which role. As a default, the leftmost argument is chosen as the theme and the rightmost as co-theme.
 
+There are several other situations not handled by the current prototype system, including the grammatical categories (and, or, refexp), interactions that take entities as one or both of the arguments and the agent arguments of causal change events.
+
+\begin{figure}
+\begin{center}
+\begin{tabular}{  l  l  }
+TYPE cause & TYPE correlate \\
+AGENT left	& AFTER correlated \\
+BETWEEN cause & BETWEEN and \\
+\end{tabular}
+\end{center}
+\caption{Example of two patterns for interaction events}
+\label{iep_exmpl}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+
+\textbf{[Increasing concentrations of CO2] cause a strong [decline in growth].}
+
+\begin{tabular}{  l  l  }
+BEFORE & \\
+BETWEEN & cause a strong \\
+AFTER & . \\
+\end{tabular}
+
+\end{center}
+\caption{Splitting a sentence for matching of interaction event patterns}
+\label{iep_split}
+\end{figure}
+
+The patterns used in the experiment were manually developed from eight of the papers in the corpus, with the remaining two held out as test data. For every annotated event in the development corpus, a pattern was written that would extract that event. Events that were impossible to extract with the types of patterns explained above, such as interactions between non-adjacent change events were ignored. To improve performance, each pattern was manually evaluated against the development data, and patterns that yielded a high ratio of false positives on the development data were excluded. 
+
+One particular group of patterns that created exceptionally many false positives was correlations triggered by single prepositions, such as ''in'', ''with'' or ''under''. This group represented a significant proportion of all correlations in the development data, but was nevertheless removed from the final set of patterns, due to the high rate of false negatives. Manual inspection of the corpus has revealed that the problem of false positives can be avoided by using patterns that match against the dependency structure, akin to the patterns used for change events, for these correlations, but this was not done for the prototype system evaluated here.
 
 \subsection{Evaluation methods}
 
