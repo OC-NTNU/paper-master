@@ -1,0 +1,45 @@
+\section{Text mining in the climate change domain}
+
+Research progress in the field of climate change is hampered by the wide range of relevant disciplines, which include, among others, climate science, earth science, oceanography, ecology and biochemistry. While a researcher may be able to keep up with the state-of-the-art within his/her field of specialization, it is impossible to keep track of all potentially useful findings in the related disciplines. Text mining can in this regards support the research effort by extracting structured and indexed representations of the findings in all relevant disciplines. This paper represents a line of work towards an information extraction systems to support scientific research in the domain of climate change science.
+
+Climate change science aims to understand the causes and effects of climate change. The knowledge in the field can to a large extent be modelled as causal or correlative relations between variables, for instance \emph{increase in atmospheric CO$_2$ causes decrease in oceanic p.H.} or \emph{decrease in mineral nutrients correlates with decrease in phytoplankon abundance}. Our hypothesis is that this representional scheme is generic enough to represent fact accross all the relevant disciplines, yet specific enough to be useful to researchers in the domain. One observation that support this hypothesis is that this representational scheme is expressive enough to support inference of more complex structures, such as feedback loops \textemdash situations in which a change to a variable sets in motion a chain of events that, in turn, cause a new change to the original variable. Feedback loops are of particular interest to researchers in the field, due to the serious consequences of a potential feedback loop. 
+
+This paper deals with automatic annotation rather than full information extraction. Annotation is the process of marking relevant text spans with category labels, and determining which relations hold between the marked text spans. For each task, the annotation guidelines specifies the set of category labels and relations which are used, and how they are used. The goal of automatic annotation is to automatically annotate unseen text with human-like annotation quality. To bridge the gap between automatic annotation and full information extraction, a post-processing procedure extracts the annotations and stores them as structured data. 
+
+The annotation scheme used in the climate change science domain is described in detail in \cite{}. The remainder of this section will present the most important aspects of the annotation scheme. As an entry point, consider the following text fragment, taken from \cite{wal13} (some parentheses removed for clarity):
+
+\begin{quote}
+
+Increasing concentrations of CO2 cause a strong decline in growth, which decreases by up to 53\% over the investigated CO2 range.
+Although the total carbon quota (TPC) is not affected by CO2, the organic carbon quota (POC) gradually increases while the inorganic carbon quota (PIC) shows a substantial decrease.
+
+\end{quote}
+
+
+The desired annotation for the sentences under the annotation scheme is presented in Figure [TODO: Erwin, I need your help for this]. The general annotation framework consists of two primitives: \emph{Triggers} and \emph{arguments}. Triggers are used to mark text spans that express interesting information of a specific type. Each trigger belongs to a category, taken from the categories presented in Table \ref{ann_scheme}. The usage of each category will be explained below. Arguments are directed links that mark relations between trigger spans. Arguments are typed, and certain types of trigger categories are required to take certain argument types, as explained below.
+
+\begin{figure}
+\Tree[.CATEGORY [.ENTITY \textit{Variable} \textit{Thing} ]
+          [.EVENT [.\textit{Change} \textit{Increase} \textit{Decrease} ] 
+         		  [.INTERACTION \textit{Cause} \textit{Correlate} ]
+          ] 
+     ]
+\caption{Type Hierarchy of triggers in the Annotation Scheme}
+\label{ann_scheme}
+\end{figure}
+
+\emph{Variable} is in our annotation scheme defined as a \emph{quantitative variable}, meaning an entity than can be measured and assigned some value along some ordered axis, either as a numerical value or a value from a totally ordered set of discrete states. This includes among other counts, frequencies and ratios. Examples of variables from the corpus include $CO_2$, \emph{organic carbon quota}, \emph{surface ocean pH} and \emph{mean light intensities}. Scientific articles normally contain a wide range of variables, but our annotation scheme limits itself to quantitative variables that occur in an event of interest, as only these can be used for making inferences by the downstream components. 
+
+\emph{Thing} is used to annotate any span of text that functions as the argument of an event, but does not fulfil the requirements for being annotated as a variable, as described above. This occurs in phrases such as ''\emph{down-regulation of the gene}'', where \emph{down-regulation} clearly signals a quantitative change, and the only possible explicit argument of the change is \emph{the gene}. However, \emph{the gene} is not a variable. The variable that changes is the implicit \emph{activity level of the gene}, under the view that \emph{down-regulate} can be paraphrased as ''\emph{decrease the activity level of}''. The explicit argument is therefore annotated as a \emph{thing} rather than a \emph{variable}.
+
+The underlying motivation for maintaining \emph{thing} and \emph{variable} as separate categories, is that the category \emph{thing} signals to the post-processing procedure that additional semantic interpretation should be factored in from the event trigger in order to specify the variable in question, as in the \emph{down-regulate} example. 
+
+The change event categories are used to mark text spans that describe a directional, quantitative change in the value of a quantiative variable. \emph{Increase} is used to annotate a change in the positive direction, \emph{decrease} annotates changes in the negative direction and \emph{change} is used when the direction of the change is underspecified in the text. The change event takes the entity that undergoes the change as a \emph{theme} argument. A change event is not annotated unless an explicit entity that undergoes the signalled change can be inferred from the text.
+
+Interaction categories mark text spans that explicitly signal interactions between two change events. The types of interactions that are used in the corpus are \emph{cause} and \emph{correlate}. Cause events take two arguments: An \emph{agent}, which marks the change event that causes the other change event to come about. The \emph{theme} argument is used for the caused change event. Correlation events also take two arguments, the \emph{theme} and \emph{co-theme}. It was noticed during corpus annotation that there is a tendency in natural language to focus on one of the changes as initiating the other, giving such correlations a directional interpretation. For correlations with an directional interpretation, the initiating event is marked as the theme, and the other event is marked as the co-theme. If the correlation has no directional interpretation, the event that is the syntactic object of the correlation trigger is marked as co-theme, and the other event as theme by default.
+
+Sometimes an interaction holds between a change event and an entity or between two entities, rather than between two change events. An example of this is shown in the annotation of ''\emph{Although the total carbon quota (TPC) is not affected by CO2 \dots}''. Such entities are interpreted as the arguments of an implicit \emph{change}. 
+
+It is not uncommon that the trigger word for a change event is used causatively, as in the sentence ''\emph{Heightened atmospheric CO$_2$ levels increase global temperatures}'', where \emph{increase} both signals an increase in the variable \emph{global temperatures} and signals a causal relationship between ''\emph{heightened atmospheric CO$_2$ levels}'' and ''\emph{increased global temperatures}''. In such cases, both change events are annotated normally, but in addition, the causative change event takes the other change event as an \emph{agent} argument, as if it were an interaction event.
+
+One aspect in which our annotation scheme differs from the types of annotation schemes  traditionally used in biomedical corpora, such as GENIA\citep{kim08}, is that biomedical corpora normally annotate entities with types from a rich domain ontology, whereas our annotation scheme only subtypes entities into the broad categories \emph{variable} and \emph{thing}. The main reason for this is the lack of onotologies that cover all the disciplines related to climate change science.

@@ -1,0 +1,70 @@
+\section{Experiments}
+
+This section presents the experiments. 
+
+\subsection{Test data}
+
+The annotated corpus consists of 10 full length scientific papers that were selected by a domain expert as represenative for the domain. The methods and materials section of the papers was not annotated, because this section consistently failed to yield any relevant information. All papers were taken from the open access journal PLOS ONE\footnote{\url{www.plosone.org}}, in order to avoid copyright issues when sharing the annotated corpus and any extracted material. 
+
+The annotation itself was conducted using the brat rapid annotation tool\ref{ste12}. All 10 papers were annotated by author EAA, and subsequently reviewed by author EM. All disagreements were solved through discussion. Additional papers have been added to the corpus since the conclusion of the experiment presented here. The corpus is publicly available in its entirety through GitHub\footnote{\url{https://github.com/OC-NTNU/OCC}}.
+
+\subsection{Evaluation methods}
+
+TEES was evaluated by five-fold cross-validation, each fold consisting of two papers. As eight papers had been used during development of the pattern matching system, the pattern matching system was evaluated once only, using the two remaining papers as test data.
+
+In the evaluation, an element is matched to an element in the gold standard if the text spans exhibit any degree of overlap, thus abstracting away from exact scoping of text spans. This was done to not penalize TEES for its biomedical-centric approach to extracting multiword expressions. A predicted trigger was counted as a true positive if it matched an element of the same annotation category in the gold standard, and a false positive if it didn't. A trigger in the gold standard was counted as a false negative if it could not be matched to a predicted trigger of the same category. 
+
+\section{Results}
+
+Precision, recall and f-score for each category for both systems were calculated and presented in Tables \ref{trigger_ev} and Table \ref{argument_ev}. 
+
+\begin{table}
+\begin{center}
+\begin{tabular}{ | l | l | l | l | l | l | l | }
+	\hline
+	\cellcolor{gray} & \multicolumn{3}{c}{TEES} & \multicolumn{3}{c|}{PMS} \\ \hline
+	\cellcolor{gray} & Precision & Recall & F-score & Precision & Recall & F-Score \\ \hline
+	Variable & 0.41 & 0.40 & 0.40 & 0.71 & 0.51 & 0.59 \\
+	Thing & 0.33 & 0.14 & 0.20 & 0.5 & 0.22 & 0.31 \\
+	Increase & 0.74 & 0.46 & 0.57 & 0.97 & 0.78 & 0.86 \\
+	Decrease & 0.76 & 0.39 & 0.52 & 0.88 & 0.71 & 0.79 \\ 
+	Change & 0.47 & 0.16 & 0.24 & 0.72 & 0.64 & 0.68 \\ 
+	Cause & 0.11 & 0.01 & 0.02 & 0.72 & 0.33 & 0.45 \\ 
+	Correlate & 0.68 & 0.13 & 0.22 & 1.00 & 0.01 & 0.02 \\ \hline
+	Macro & 0.50 & 0.24 & 0.31 & 0.79 & 0.46 & 0.53 \\
+	Micro & 0.50 & 0.33 & 0.38 & 0.81 & 0.51 & 0.58 \\ \hline
+\end{tabular}
+\end{center}
+\caption{Evaluation metrics, trigger categories.}
+\label{trigger_ev}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{ | l | l | l | l | l | l | l | }	
+	\hline
+	\cellcolor{gray} & \multicolumn{3}{c}{TEES} & \multicolumn{3}{c|}{PMS} \\ \hline
+	\cellcolor{gray} & Precision & Recall & F-score & Precision & Recall & F-Score \\ \hline
+	Agent & 0.26 & 0.02 & 0.04 & 0.22 & 0.06 & 0.09 \\
+	Theme & 0.39 & 0.19 & 0.23 & 0.43 & 0.32 & 0.37 \\
+	Co-theme & 0.32 & 0.06 & 0.10 & 0.00 & 0.00 & 0.00 \\ \hline
+	Macro & 0.32 & 0.09 & 0.12 & 0.22 & 0.13 & 0.15 \\ 
+	Micro & 0.36 & 0.14 & 0.18 & 0.36 & 0.26 & 0.30 \\ \hline
+\end{tabular}
+\end{center}
+\caption{Evaluation metrics, argument categories.}
+\label{argument_ev}
+\end{table}
+
+It should be kept in mind that particularly the results produced provide a low estimate of the performance of a mature information extraction system on the task. The pattern matching system used to provide the benchmark estimates is extremely primitive, and has a large potential for improvement, whereas TEES, being a machine learning based system, likely suffers from lack of training data.
+
+It can be seen from Table \ref{trigger_ev} that the PMS outperforms TEES on the entity categories (\emph{variable}, \emph{thing}). This seems to confirm that the additional information provided by having extracted change events yields benefits that far outweight the error propagted from the earlier step.
+
+For both systems, performance was higher on the change event categories (\emph{increase}, \emph{decrease} and \emph{change}) than on the entity categories, or in fact, on any other trigger cateogry group. This indicates that the change event categories is the group of categories that is easiest to recognize correctly in this extraction task. The PMS outperformed TEES on all change event categories. It is likely tha the performance of TEES is affected negatively by errors in the earlier step, as the features used for event trigger detection include the number of entities in the sentence and entities within a linear window of the word in question.
+
+For the interaction events, the PMS clearly outperforms the TEES system on the \emph{cause} category. However, the opposite holds true for the \emph{correlation} category. This is most likely due to the fact that the most productive patterns for correlations were removed to avoid false positives.
+
+Analysis of performance on argument categories does not bring any new insights: Performance on the \emph{theme} category is higher for the PMS, due to the increased number of correct change events detected. The PMS scores 0.00 for the \emph{co-theme} category, due to fact that the system at the current stage of development is unable to properly distinguish themes and co-themes in correlations. It is surprising that the performance for the \emph{agent} category is rather similar for the two systems, especially given that the PMS by far outperforms TEES on the cause category. A significant reason for this is likely the fact that the PMS cannot handle causative change events at current stage of development.
+
+Overall, the PMS system generally outperforms TTES system. The results are not perfect due to data limitation for TEES and system primitivity for the PMS, and due to the fact that the two systems take different approaches to information extraction, but the results still show that there could be some merit to altering the traditional information extraction pipeline.
+

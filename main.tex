@@ -47,7 +47,7 @@
 \documentclass{bmcart}
 
 %%% Load packages
-%\usepackage{amsthm,amsmath}
+\usepackage{amsthm,amsmath}
 %\RequirePackage{natbib}
 %\RequirePackage{hyperref}
 \usepackage[utf8]{inputenc} %unicode support
@@ -59,10 +59,12 @@
 \usepackage{graphicx}
 \usepackage{multirow}
 \usepackage{rotating}
-\usepackage{xcolor,colortbl}
-\usepackage[color=red]{todonotes}
-\usepackage{qtree}
-\usepackage{tikz-dependency}
+%\usepackage{xcolor,colortbl}
+%\usepackage[color=red]{todonotes}
+%\usepackage{qtree}
+%\usepackage{tikz-dependency}
+
+\DeclareMathOperator*{\argmax}{\arg\!\max}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -106,7 +108,7 @@
 %%                                          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\title{Paper on Information Extraction and such}
+\title{Customizing the information extraction pipeline: An experiment in text mining for climate science}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -123,13 +125,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \author[
-   addressref={aff1},                   % id's of addresses, e.g. {aff1,aff2}
+   addressref={aff1, aff2},                   % id's of addresses, e.g. {aff1,aff2}
    corref={aff1},                       % id of corresponding address, if any
    noteref={n1},                        % id's of article notes, if any
-   email={elias.aamot@gmail.com}   % email address
+   email={eliasaa@google.com}   % email address
 ]{\inits{EAA}\fnm{Elias} \snm{Aamot}}
 \author[
-   addressref={aff1,aff2},
+   addressref={aff1},
    email={john.RS.Smith@cambridge.co.uk}
 ]{\inits{XY}\fnm{X} \snm{Y}}
 
@@ -143,18 +145,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \address[id=aff1]{%                           % unique id
-  \orgname{Department of Zoology, Cambridge}, % university, etc
-  \street{Waterloo Road},                     %
+  \orgname{Norwegian University of Science and Technology}, % university, etc
+  %\street{Waterloo Road},                     %
   %\postcode{}                                % post or zip code
-  \city{London},                              % city
-  \cny{UK}                                    % country
+  \city{Trondheim},                              % city
+  \cny{Norway}                                    % country
 }
-\address[id=aff2]{%
-  \orgname{Marine Ecology Department, Institute of Marine Sciences Kiel},
-  \street{D\"{u}sternbrooker Weg 20},
-  \postcode{24105}
-  \city{Kiel},
-  \cny{Germany}
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -186,12 +182,10 @@
 
 \begin{abstractbox}
 
-\begin{abstract} % abstract
-\parttitle{First part title} %if any
-Text for this section.
+\begin{abstract}
 
-\parttitle{Second part title} %if any
-Text for this section.
+Information extraction can assist researchers by providing structured access to key findings. In traditional information extraction systems, entities are extracted in a first step, and events in a subsequent step. In this paper, we explore information extraction to support research in climate change science. The structure of the information extraction task poses challenges to the canonical pipeline. We therefore explore adapting the extraction pipeline to the task at hand, and show that such customizations can yield improvements for certain tasks.
+
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -203,9 +197,10 @@ Text for this section.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{keyword}
-\kwd{sample}
-\kwd{article}
-\kwd{author}
+\kwd{information extraction}
+\kwd{text mining}
+\kwd{natural language processing}
+\kwd{annotation}
 \end{keyword}
 
 % MSC classifications codes, if any
@@ -226,9 +221,9 @@ Text for this section.
 %% Main stuff
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \input{introduction}
+\input{climatemining}
 \input{methods}
-\input{results}
-\input{discussion}
+\input{experiments}
 \input{conclusion}
 
 
@@ -245,10 +240,10 @@ Text for this section.
   The authors declare that they have no competing interests.
 
 \section*{Author's contributions}
-    Text for this section \ldots
+    	Text for this section \ldots
 
 \section*{Acknowledgements}
-  Much of the work presented in this article was conducted as a part of the Master's project of author Elias Aamot.
+  Much of the work presented in this article was conducted as a part of the Master's project of author Elias Aamot. Elias Aamot is currently affiliated with Google, Inc., but the work presented here was substantially conducted while affiliated with the Norwegian University of Science and Technology.
   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                  The Bibliography                       %%
